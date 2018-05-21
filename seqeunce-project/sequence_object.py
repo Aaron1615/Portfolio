@@ -14,6 +14,20 @@ class sequence(object):
             "G":"Guanine",
             "C":"Cytosine" 
         }
+        self.NA_to_RNA = {
+            "A":"U",
+            "T":"A",
+            "U":"A",
+            "G":"C",
+            "C":"G"
+        }
+        self.NA_to_DNA = {
+            "A":"T",
+            "T":"A",
+            "U":"A",
+            "G":"C",
+            "C":"G"
+        } 
         self.RNA_to_amino_acid = {}
         self.amino_acids = {
             "A":"ala", "R":"arg", "N":"asn", "D":"asp", 
@@ -79,7 +93,17 @@ class sequence(object):
     def __str__(self):
         if self.seq_type == "PROTEIN":
             return "-".join([self.amino_acids[x] for x in self.seq])
-
         else:
             return self.seq
+    def transcribe(self):
+        if self.seq_type != "DNA":
+            raise TypeError("Only DNA can be Transcribed")
+        else:
+            self.seq = list(self.seq)
+            for index in range(len(self.seq)):
+                self.seq[index] = self.NA_to_RNA[self.seq[index]]
+            self.seq = "".join(self.seq)
+            self.seq_type = "RNA"
+            return self.seq
+
 
