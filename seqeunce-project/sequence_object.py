@@ -128,6 +128,19 @@ class sequence(object):
             return "-".join([self.amino_acids[x] for x in self.seq])
         else:
             return self.seq
+    def reverse_transcribe(self):
+        """Converts an RNA sequence into a DNA sequence. Returns the new sequence and
+        also changes the current object."""
+        if self.seq_type != "RNA":
+            raise TypeError("Only RNA can be Reverse-Transcribed")
+        else:
+            self.seq = list(self.seq)
+            for index in range(len(self.seq)):
+                self.seq[index] = self.NA_to_DNA[self.seq[index]]
+            self.seq = "".join(self.seq)
+            self.seq_type = "DNA"
+            return self.seq
+
     def transcribe(self):
         """This function converts a DNA sequence into its complementary RNA sequence.
         Also changes the type of sequence to RNA. Returns the new sequence and also 
