@@ -147,6 +147,8 @@ class sequence(object):
         changes the current object."""
         #Still a work in progress, would like to add ability to choose which strand
         #of DNA is transcribed.
+
+        #Realized is only getting RNA complement, not Reverse complement... will need to fix in next version
         if self.seq_type != "DNA":
             raise TypeError("Only DNA can be Transcribed")
         else:
@@ -158,31 +160,64 @@ class sequence(object):
             return self.seq
 
     def translate(self):
-        """This function converts the DNA or RNA sequence into a sequence of amino acids.
-        Also changes the type of sequence to PROTEIN. Returns the new sequence and also 
-        changes the current object."""
-        #Still a work in progress, would like to add ability to choose which strand
-        #of DNA is transcribed before translation occurs.
-        #Also would like to add start and Stop codon functionality. 
-        #May convert to a different method if that is the case.
+        """This is a wrapper function of the to_protein function. 
+        Searches the sequence for a start codon. If one exists, passes
+        that start index to the to_protein function. Raises an error
+        if no start codon is present."""
+        #Still a work in progress, would like to add ability to choose which strand of DNA is transcribed before translation occurs.
+        
+        #ensuring input seqeunce is the propper type.
         if self.seq_type == "PROTEIN":
             raise TypeError("This protein has already been translated")
         elif self.seq_type == "DNA":
             self.transcribe()
-        codons = []
+
+        #Begin finiding Start codon
+        found = False
+        index = 0
+        while index <= len(self.seq)-3 and not found:
+            if self.seq[index] == "A" and self.seq[index+1] == "U" and self.seq[index+2] == "G": 
+                start = index
+                found = True
+            else:
+                index += 1
+        if found:
+            self.to_protein(start,True)
+        else:
+            raise AttributeError("No start codon present. Unable to Translate")
+        return self.__str__()
+        
+
+    def to_protein(self, start=0, stop_at_stop=False):
+        """This function converts the DNA or RNA sequence into a sequence of amino acids.
+        Starts coding from the index (start) until either a stop codon if stop_at_stop is
+        True, or when there are no more sets of 3 Nucleotides available.
+        Also changes the type of sequence to PROTEIN. Returns the new sequence and also 
+        changes the current object."""
+
+        #ensuring input seqeunce is the propper type.
+        if self.seq_type == "PROTEIN":
+            raise TypeError("This protein has already been translated")
+        elif self.seq_type == "DNA":
+            self.transcribe()
+
         codon = ""
         triple = 0
-        for nucleotide in self.seq:
-            if triple < 3:
-                codon = codon + nucleotide
-                triple += 1
+        protein = ""
+        #finds sets of three nucleotides and uses the RNA_to_amino_acid dictionary to convert them.
+        for index in range(start, len(self.seq)):
+            codon = codon + self.seq[index]
+            triple += 1
             if triple >= 3:
-                codons.append(codon)
-                codon = ""
-                triple = 0
-        self.seq = ""
-        for part in codons:
-            self.seq = self.seq + self.RNA_to_amino_acid[part]
+                codon = self.RNA_to_amino_acid[codon]
+                #Checks for a stop codon if stop_at_stop is enabled.
+                if codon == "0" and stop_at_stop:
+                    break
+                else:    
+                    protein = protein + codon
+                    codon = ""
+                    triple = 0
+        self.seq = protein
         self.seq_type = "PROTEIN"
         return self.__str__()
 
