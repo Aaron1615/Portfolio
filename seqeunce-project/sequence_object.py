@@ -2,7 +2,8 @@ class sequence(object):
     """Sequence object can be either DNA, RNA, or Protein"""
 
     def __init__(self, data, name):
-        
+        self.seq = ""
+        self.complement= ""
         # Dictionary of DNA Nucleotide names, for quicker lookup and later usage
         self.D_nucleotides = {
             "A":"Adenine",
@@ -63,7 +64,9 @@ class sequence(object):
             raise TypeError("name argument must be DNA, RNA, PROTEIN, or None")
         #Check to ensure each sequence has proper subunits.
         self.check_sequence(data)
-
+        if self.is_DNA(data):
+            for value in self.seq:
+                self.complement = self.NA_to_DNA[value] + self.complement
     
 
     def is_DNA(self,data):
@@ -148,7 +151,6 @@ class sequence(object):
         #Still a work in progress, would like to add ability to choose which strand
         #of DNA is transcribed.
 
-        #Realized is only getting RNA complement, not Reverse complement... will need to fix in next version
         if self.seq_type != "DNA":
             raise TypeError("Only DNA can be Transcribed")
         else:
@@ -166,7 +168,7 @@ class sequence(object):
         if no start codon is present."""
         #Still a work in progress, would like to add ability to choose which strand of DNA is transcribed before translation occurs.
         
-        #ensuring input seqeunce is the propper type.
+        #ensuring input sequence is the proper type.
         if self.seq_type == "PROTEIN":
             raise TypeError("This protein has already been translated")
         elif self.seq_type == "DNA":
@@ -195,7 +197,7 @@ class sequence(object):
         Also changes the type of sequence to PROTEIN. Returns the new sequence and also 
         changes the current object."""
 
-        #ensuring input seqeunce is the propper type.
+        #ensuring input sequence is the proper type.
         if self.seq_type == "PROTEIN":
             raise TypeError("This protein has already been translated")
         elif self.seq_type == "DNA":
@@ -221,3 +223,17 @@ class sequence(object):
         self.seq_type = "PROTEIN"
         return self.__str__()
 
+    def tm(self, seq):
+        """Helper function for finding optimal primers.
+        Returns the TM of a primer assuming the primer
+        is composed of DNA"""
+        num_nucleotides = {"A":0, "T":0, "C":0, "G":0}
+        for nucleotide in seq:
+            num_nucleotides[nucleotide] +=1
+        if len(seq) < 13:
+            return (num_nucleotides["A"]+num_nucleotides["T"])*2 + (num_nucleotides["G"]+ num_nucleotides["C"])*4
+        else:
+            return 64.9 + 41*(num_nucleotides["G"]+ num_nucleotides["C"]-16.4)/(num_nucleotides["A"] + num_nucleotides["T"] + num_nucleotides["G"] + num_nucleotides["C"])
+    #one wrapper function that returns both primers.
+        #should take in size of primers desired
+        #should take min size of product desired
