@@ -237,3 +237,12 @@ class sequence(object):
     #one wrapper function that returns both primers.
         #should take in size of primers desired
         #should take min size of product desired
+        #will pass primer size and complement/seq into two functions
+            #will have a list of lists, each having an index (i.e. where the primer starts) and the primer sequence itself
+            #first will index over to make primer via for loop passing to tm func
+            #if tm is in optimal range (between 50 and 60), return the primer sequence along with current index,tm, and append to list of lists
+
+        #now that we have a list of best primers,pass both lists to another function along with min size of product
+            #will call a recursive helper function to select the primer iwth the best tm
+            # will call that recrusvie helper again on other primer, and compare to see if > min size.
+            #if it's found, return both primers, else keep digging.
