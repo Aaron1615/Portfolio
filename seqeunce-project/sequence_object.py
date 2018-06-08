@@ -234,15 +234,38 @@ class sequence(object):
             return (num_nucleotides["A"]+num_nucleotides["T"])*2 + (num_nucleotides["G"]+ num_nucleotides["C"])*4
         else:
             return 64.9 + 41*(num_nucleotides["G"]+ num_nucleotides["C"]-16.4)/(num_nucleotides["A"] + num_nucleotides["T"] + num_nucleotides["G"] + num_nucleotides["C"])
-    #one wrapper function that returns both primers.
-        #should take in size of primers desired
-        #should take min size of product desired
-        #will pass primer size and complement/seq into two functions
-            #will have a list of lists, each having an index (i.e. where the primer starts) and the primer sequence itself
-            #first will index over to make primer via for loop passing to tm func
-            #if tm is in optimal range (between 50 and 60), return the primer sequence along with current index,tm, and append to list of lists
 
-        #now that we have a list of best primers,pass both lists to another function along with min size of product
-            #will call a recursive helper function to select the primer iwth the best tm
-            # will call that recrusvie helper again on other primer, and compare to see if > min size.
-            #if it's found, return both primers, else keep digging.
+# Find primer function and its associated helper functions still need improvements.
+# for one, a better TM algorithm would assist with accuracy, as current primer TM variations make optimization negligible.
+# there is an O(n^2) algorithm in potential_primers function which may also be optimizable.
+#inefficient because at present, might as well just use the first primers found in the potential primers algorithm, which currently has multiple helper functions working to accomplish the same task 
+    #with a better TM algorithm and more paramaters would come a more refined set of helper functions.
+    # useful as a proof of concept set.
+    #still need test_cases for this set of functions.
+    
+
+    def find_primers(self,primer_size,min_product):
+        if self.is_DNA:
+            fwd_primers = self.potential_primers(primer_size, self.seq)
+            rev_primers = self.potential_primers(primer_size, self.complement)
+            return self.best_primers(fwd_primers, rev_primers, min_product,len(self.seq))
+
+    def potential_primers(self, size,strand):
+        primers = []
+        for index in range(len(strand)-size):
+            counter = 0
+            current_primer = ""
+            while counter < size:
+                current_primer += strand[index + counter]
+                counter += 1
+            temperature = self.tm(current_primer)
+            if temperature <= 57 and temperature >= 54:
+                primers.append([temperature, index, current_primer])
+        return primers
+
+    def best_primers(self, fwd_primers, rev_primers, min_product, length):
+        size = ((length - rev_primers[0][1]) - fwd_primers[0][1])
+        if size >= min_product:
+            return "Forward primer is: " + fwd_primers[0][2] + " Reverse primer is: " + rev_primers[0][2] + " Size is: " + str(size)
+        else:
+            return "No primers available to make a product that size." 
